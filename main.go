@@ -1,3 +1,6 @@
+// Install Exporter package: go get github.com/fabioberger/roam-migration
+// Run following command in terminal: go run main.go -p "C:\Users\AnweshG\Desktop\Roam-Export-1628326421838 - MD"
+
 package main
 
 import (
@@ -64,6 +67,7 @@ func recursivelyConvertFiles(directory string) error {
 		record.RemoveRoamStyling()
 		record.UnderscoreLinkedFileNames(names)
 		record.ConvertHashTagsToBidirectionalLinks()
+		record.ConvertHyperLinks()
 		err = record.Save()
 		if err != nil {
 			return err
@@ -111,6 +115,19 @@ func (r *Record) ConvertHashTagsToBidirectionalLinks() {
 	replacement = `$1`
 	re = regexp.MustCompile(regex)
 	r.Contents = re.ReplaceAllString(r.Contents, replacement)
+
+}
+
+func (r *Record) ConvertHyperLinks() {
+	// https://orgmode.org/guide/Hyperlinks.html
+
+	// Format Hyperlinks as per org-mode
+	// Reference: https://regex101.com/r/iaTu7H/1
+	regexL := `\[\s*(.+?)\s*\]\(\s*(.+?)\s*\)`
+	replacementL := `[[$2][$1]]`
+	reL := regexp.MustCompile(regexL)
+	r.Contents = reL.ReplaceAllString(r.Contents, replacementL)
+
 }
 
 func (r *Record) FormatDates(names []string) {
